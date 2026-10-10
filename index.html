@@ -1,0 +1,497 @@
+<title>Le grand départ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Mise en page : un carnet de bord en une colonne, ouvert par une carte d'embarquement ; chaque escale est une fiche reperee par ses codes d'aeroport. */
+:root {
+  --paper: #eef3f4;
+  --card: #ffffff;
+  --ink: #132a33;
+  --muted: #52676f;
+  --line: #d3dfe2;
+  --hibiscus: #c0215c;
+  --hibiscus-soft: #fbe7ee;
+  --lagoon: #0d7377;
+  --lagoon-soft: #e1f2f2;
+  --sun: #8a4b00;
+  --sun-soft: #fff0d4;
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --s-1: 0.8125rem;
+  --s-2: 1rem;
+  --s-3: 1.1875rem;
+  --s-4: 1.5rem;
+  --s-5: 2.25rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0d181c; --card: #14242a; --ink: #e4eef0; --muted: #97adb4; --line: #25393f;
+    --hibiscus: #ff7aa6; --hibiscus-soft: #3a1624; --lagoon: #5cc8c9; --lagoon-soft: #10302f;
+    --sun: #f5b754; --sun-soft: #30230d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0d181c; --card: #14242a; --ink: #e4eef0; --muted: #97adb4; --line: #25393f;
+  --hibiscus: #ff7aa6; --hibiscus-soft: #3a1624; --lagoon: #5cc8c9; --lagoon-soft: #10302f;
+  --sun: #f5b754; --sun-soft: #30230d;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 var(--s-2)/1.55 var(--f-body);
+  padding-inline: 16px;
+  padding-block: 20px 48px;
+}
+.wrap { max-width: 44rem; margin-inline: auto; display: grid; gap: 40px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.1; }
+h2 { font-size: var(--s-4); font-weight: 800; }
+h3 { font-size: var(--s-3); font-weight: 600; }
+p { margin: 0; }
+a { color: var(--lagoon); text-underline-offset: 2px; }
+a:focus-visible, input:focus-visible, .jump a:focus-visible { outline: 2px solid var(--hibiscus); outline-offset: 2px; }
+.label {
+  font: 600 var(--s-1)/1.2 var(--f-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+section { display: grid; gap: 16px; }
+section > header { display: grid; gap: 8px; }
+
+/* Carte d'embarquement */
+.pass {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.pass-body { padding: 20px; display: grid; gap: 14px; }
+.pass-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; }
+.pass h1 { font-size: var(--s-5); font-weight: 800; letter-spacing: -0.01em; }
+.lede { color: var(--muted); font-size: var(--s-3); max-width: 36ch; }
+.route {
+  list-style: none; margin: 4px 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px 0;
+}
+.route li { display: flex; align-items: flex-start; }
+.route li + li::before {
+  content: "→";
+  font: 500 1.25rem/1.6 var(--f-mono);
+  color: var(--hibiscus);
+  padding-inline: 8px;
+}
+.route b { display: block; font: 600 1.75rem/1.2 var(--f-mono); letter-spacing: 0.02em; }
+.route span { display: block; font-size: var(--s-1); color: var(--muted); }
+.stub {
+  position: relative;
+  border-top: 2px dashed var(--line);
+  padding: 14px 20px 16px;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;
+}
+.stub::before, .stub::after {
+  content: ""; position: absolute; top: -11px; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--paper); border: 1px solid var(--line);
+}
+.stub::before { left: -11px; }
+.stub::after { right: -11px; }
+.stub b { display: block; font: 600 var(--s-2)/1.3 var(--f-mono); font-variant-numeric: tabular-nums; }
+
+/* Navigation */
+.jump {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2;
+  background: var(--paper);
+  margin-block: -24px; padding-block: 10px;
+  display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+}
+.jump a {
+  flex: none; text-decoration: none; color: var(--ink);
+  font: 600 var(--s-1)/1 var(--f-mono); letter-spacing: 0.04em;
+  border: 1px solid var(--line); background: var(--card);
+  border-radius: 999px; padding: 8px 12px;
+}
+
+/* L'essentiel */
+.essentials { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.essentials li { display: grid; gap: 2px; padding-left: 14px; border-left: 3px solid var(--line); }
+.essentials li.warn { border-left-color: var(--sun); }
+
+/* Le plan */
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.timeline li {
+  position: relative; display: grid; gap: 4px;
+  padding: 0 0 22px 26px; border-left: 2px solid var(--line); margin-left: 6px;
+}
+.timeline li:last-child { border-left-color: transparent; padding-bottom: 0; }
+.timeline li::before {
+  content: ""; position: absolute; left: -8px; top: 3px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--card); border: 2px solid var(--lagoon);
+}
+.timeline li.now::before { background: var(--hibiscus); border-color: var(--hibiscus); }
+.when { font: 600 var(--s-1)/1.4 var(--f-mono); color: var(--lagoon); font-variant-numeric: tabular-nums; }
+.now .when { color: var(--hibiscus); }
+.timeline p { color: var(--ink); max-width: 62ch; }
+
+.callout {
+  border-radius: 12px; padding: 14px 16px; display: grid; gap: 6px;
+  background: var(--hibiscus-soft);
+}
+.callout.warn { background: var(--sun-soft); }
+.callout strong { font-family: var(--f-display); font-size: var(--s-3); }
+.callout.warn strong { color: var(--sun); }
+.callout:not(.warn) strong { color: var(--hibiscus); }
+
+/* Escales */
+.stop {
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  padding: 20px; gap: 18px;
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 64px);
+}
+.codes { font: 600 var(--s-2)/1 var(--f-mono); letter-spacing: 0.08em; color: var(--hibiscus); }
+.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.chips li {
+  font: 500 var(--s-1)/1.2 var(--f-mono); padding: 5px 9px; border-radius: 6px;
+  background: var(--paper); color: var(--muted);
+}
+.chips li.ok { background: var(--lagoon-soft); color: var(--lagoon); }
+.chips li.warn { background: var(--sun-soft); color: var(--sun); }
+.facts { margin: 0; display: grid; gap: 14px; }
+.facts > div { display: grid; gap: 2px; min-width: 0; }
+.facts dt { font: 600 var(--s-1)/1.4 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.facts dd { margin: 0; max-width: 62ch; }
+@media (min-width: 640px) {
+  .facts > div { grid-template-columns: 9.5rem minmax(0, 1fr); gap: 16px; }
+  .facts dt { padding-top: 3px; }
+}
+#antilles, #reunion, #japon, #checklist, #plan { scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 64px); }
+
+/* Check-list */
+.checklist { display: grid; gap: 18px; }
+.checklist fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 4px; }
+.checklist legend { padding: 0; margin-bottom: 6px; }
+.checklist label {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 10px 12px; border-radius: 10px; background: var(--card); border: 1px solid var(--line);
+  cursor: pointer;
+}
+.checklist input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--lagoon); flex: none; }
+.checklist input:checked + span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--lagoon); }
+.progress { font: 600 var(--s-1)/1 var(--f-mono); color: var(--lagoon); font-variant-numeric: tabular-nums; }
+
+/* Cagnotte */
+.cagnotte {
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  padding: 18px 20px; display: grid; gap: 14px;
+}
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 12px; }
+.fields label { display: grid; gap: 4px; font-size: var(--s-1); color: var(--muted); }
+.fields input[type="number"] {
+  font: 600 var(--s-3)/1.2 var(--f-mono); font-variant-numeric: tabular-nums;
+  color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; box-sizing: border-box;
+}
+.toggle { display: flex; gap: 10px; align-items: center; font-size: var(--s-2); }
+.toggle input { width: 20px; height: 20px; accent-color: var(--lagoon); margin: 0; }
+.result { font-size: var(--s-3); }
+.result b { font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--lagoon); }
+.hint { font-size: var(--s-1); color: var(--muted); }
+
+.questions { margin: 0; padding-left: 1.4em; display: grid; gap: 8px; }
+.questions li::marker { font-family: var(--f-mono); color: var(--hibiscus); }
+.sources { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; font-size: var(--s-1); }
+.sources li { overflow-wrap: anywhere; }
+footer { font-size: var(--s-1); color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+</style>
+
+<div class="wrap">
+
+  <header class="pass">
+    <div class="pass-body">
+      <div class="pass-top">
+        <span class="label">Carte d'embarquement</span>
+        <span class="label">Barmaid · aller simple</span>
+      </div>
+      <h1>Le grand départ</h1>
+      <p class="lede">Bosser derrière un bar là où il fait beau, mettre de côté, et finir par le Japon.</p>
+      <ol class="route" aria-label="Itinéraire">
+        <li><div><b>CDG</b><span>Paris</span></div></li>
+        <li><div><b>PTP</b><span>Antilles</span></div></li>
+        <li><div><b>RUN</b><span>La Réunion</span></div></li>
+        <li><div><b>CTS</b><span>Japon</span></div></li>
+      </ol>
+    </div>
+    <div class="stub">
+      <div><span class="label">Départ</span><b>Déc. 2026</b></div>
+      <div><span class="label">Escales</span><b>3</b></div>
+      <div><span class="label">Durée</span><b>~ 2 ans</b></div>
+    </div>
+  </header>
+
+  <nav class="jump" aria-label="Aller à">
+    <a href="#plan">Le plan</a>
+    <a href="#antilles">Antilles</a>
+    <a href="#reunion">Réunion</a>
+    <a href="#japon">Japon</a>
+    <a href="#checklist">Check-list</a>
+    <a href="#questions">À trancher</a>
+  </nav>
+
+  <section id="essentiel" aria-labelledby="essentiel-titre">
+    <header><h2 id="essentiel-titre">L'essentiel</h2></header>
+    <ul class="essentials">
+      <li><span class="label">Là où tu gagnes ta vie</span><p>Les Antilles et la Réunion, c'est la France&nbsp;: pas de visa, un contrat français, le SMIC, la Sécu. C'est là que tu fais ta cagnotte.</p></li>
+      <li><span class="label">Ce qui se prépare</span><p>Le Japon passe par le PVT (visa vacances-travail)&nbsp;: dossier à déposer avant tes 31 ans, avec 4&nbsp;500&nbsp;€ sur ton compte, ou 3&nbsp;100&nbsp;€ et un billet retour.</p></li>
+      <li class="warn"><span class="label">Ce qui change tout</span><p>En PVT, travailler dans un bar est interdit au Japon. Là-bas, ce sera restaurant, hôtel ou station de ski.</p></li>
+    </ul>
+  </section>
+
+  <section id="plan" aria-labelledby="plan-titre">
+    <header>
+      <span class="label">À partir d'octobre 2026</span>
+      <h2 id="plan-titre">Le plan, saison par saison</h2>
+    </header>
+    <ol class="timeline">
+      <li class="now">
+        <span class="when">Oct. → nov. 2026 · maintenant</span>
+        <h3>Décrocher la saison aux Antilles</h3>
+        <p>Saint-Barth recrute déjà&nbsp;: des hôtels annoncent des prises de poste dès la fin octobre. La Guadeloupe et la Martinique embauchent jusqu'à fin novembre pour la haute saison. CV en français et en anglais, et dix candidatures par semaine.</p>
+      </li>
+      <li>
+        <span class="when">Déc. 2026 → avr. 2027</span>
+        <h3>La saison aux Antilles</h3>
+        <p>Saison sèche et haute saison, avec un pic à Noël et en février. Le but&nbsp;: finir la saison avec la cagnotte du PVT.</p>
+      </li>
+      <li>
+        <span class="when">Mai 2027</span>
+        <h3>Escale en métropole pour le PVT</h3>
+        <p>Le dossier se dépose sur rendez-vous à l'ambassade du Japon à Paris ou au consulat dont tu dépends, et il faut être en France au moment du dépôt. Une fois le visa délivré, tu as 12 mois pour entrer au Japon.</p>
+      </li>
+      <li>
+        <span class="when">Juin → oct. 2027</span>
+        <h3>La Réunion pendant l'hiver austral</h3>
+        <p>La saison sèche, la plus agréable, avec la haute saison touristique en juillet-août sur la côte Ouest. Depuis là-bas, tu postules aux stations de ski japonaises, qui recrutent de mi-mai à septembre.</p>
+      </li>
+      <li>
+        <span class="when">Fin nov. 2027 → automne 2028</span>
+        <h3>Le Japon en PVT</h3>
+        <p>Une saison d'hiver à Niseko ou Hakuba jusqu'en mars-avril, puis le voyage avec ce que tu as gagné. Un an au maximum, sans prolongation.</p>
+      </li>
+    </ol>
+    <div class="callout">
+      <strong>Si tu as déjà 30 ans</strong>
+      <p>Le PVT se demande jusqu'à la veille de tes 31 ans. Si ton anniversaire tombe avant mai 2027, dépose le dossier maintenant, enchaîne le Japon juste après les Antilles, et garde la Réunion pour la fin&nbsp;: elle ne demande aucun visa.</p>
+    </div>
+  </section>
+
+  <section class="stop" id="antilles" aria-labelledby="antilles-titre">
+    <header>
+      <span class="codes">PTP · FDF · SBH · SFG</span>
+      <h2 id="antilles-titre">Antilles</h2>
+      <ul class="chips">
+        <li class="ok">Pas de visa</li>
+        <li>5 h de moins qu'à Paris</li>
+        <li>Saison déc. → avr.</li>
+      </ul>
+    </header>
+    <dl class="facts">
+      <div><dt>Quand</dt><dd>Haute saison de mi-décembre à avril (le carême, saison sèche), avec des pics à Noël-Nouvel An et en février. De juin à novembre, c'est l'hivernage&nbsp;: saison des cyclones, surtout d'août à octobre, et des établissements ferment.</dd></div>
+      <div><dt>Papiers</dt><dd>Guadeloupe, Martinique, Saint-Barth et Saint-Martin côté français&nbsp;: c'est la France. Carte d'identité, contrat français, SMIC, Sécu. Le côté hollandais de Saint-Martin (Sint Maarten) est un autre pays, avec ses propres permis de travail.</dd></div>
+      <div><dt>Saint-Barth</dt><dd>Le spot des gros pourboires, avec une clientèle aisée, souvent américaine&nbsp;: l'anglais est souvent exigé. Des annonces de barman pour la saison 2026-27 affichent 2&nbsp;300 à 2&nbsp;400&nbsp;€ par mois. Le logement y est rare et hors de prix&nbsp;: ne pars qu'avec un poste logé ou une prime de logement.</dd></div>
+      <div><dt>Guadeloupe, Martinique</dt><dd>Plus de postes et une vie moins chère qu'à Saint-Barth. Les coins qui bougent&nbsp;: Sainte-Anne, Saint-François, Le Gosier et Deshaies en Guadeloupe&nbsp;; Les Trois-Îlets, Sainte-Anne et Le Diamant en Martinique. Une voiture est presque indispensable.</dd></div>
+      <div><dt>Coût de la vie</dt><dd>Les prix sont 14 à 16&nbsp;% plus élevés qu'en métropole, et les courses environ 40&nbsp;% plus chères (Insee, 2022).</dd></div>
+      <div><dt>Où chercher</dt><dd>L'Hôtellerie Restauration (rubrique Outre-mer), le Journal des Palaces pour Saint-Barth, France Travail (971, 972, 977, 978), les groupes Facebook d'emploi de chaque île. Et le mail direct aux établissements qui te plaisent, suivi d'un appel.</dd></div>
+      <div><dt>Piste bonus</dt><dd>Pendant la même saison, les yachts de luxe recrutent des hôtesses («&nbsp;stews&nbsp;») entre Antigua, Saint-Martin et Saint-Barth. Il faut l'anglais, la formation de sécurité STCW et la visite médicale ENG1. Logée et nourrie à bord, avec des pourboires.</dd></div>
+    </dl>
+  </section>
+
+  <section class="stop" id="reunion" aria-labelledby="reunion-titre">
+    <header>
+      <span class="codes">RUN</span>
+      <h2 id="reunion-titre">La Réunion</h2>
+      <ul class="chips">
+        <li class="ok">Pas de visa</li>
+        <li>3 h de plus qu'à Paris</li>
+        <li>11 h de vol</li>
+      </ul>
+    </header>
+    <dl class="facts">
+      <div><dt>Quand</dt><dd>L'hiver austral, de mai à octobre, est la saison sèche et la plus agréable. Haute saison touristique en juillet-août, puis aux vacances de fin d'année. L'été austral, de novembre à avril, est chaud et humide, avec les cyclones de janvier à mars&nbsp;; des établissements ferment.</dd></div>
+      <div><dt>Papiers</dt><dd>C'est la France, rien à demander. Carte d'identité, contrat français, SMIC, Sécu.</dd></div>
+      <div><dt>Où bosser</dt><dd>La côte Ouest concentre le tourisme&nbsp;: Saint-Gilles-les-Bains, L'Hermitage, La Saline, Saint-Leu. Saint-Pierre, au Sud, pour les bars et la vie de nuit.</dd></div>
+      <div><dt>Le marché</dt><dd>Le tourisme y est peu saisonnier&nbsp;: on y trouve plutôt des CDD et des CDI que des contrats de saison logés. Le chômage est élevé sur l'île, mais les serveurs de café et de restaurant font partie des profils que les patrons peinent à recruter.</dd></div>
+      <div><dt>Coût de la vie</dt><dd>Environ 9&nbsp;% plus cher qu'en métropole, les courses 37&nbsp;% plus chères (Insee, 2022). Pour se loger, la colocation via Leboncoin et les groupes Facebook. Une voiture est presque indispensable.</dd></div>
+      <div><dt>Où chercher</dt><dd>France Travail (974), Indeed, les groupes Facebook d'emploi, et le tour des bars et restaurants de Saint-Gilles CV en main&nbsp;: dans la restauration, ça marche encore.</dd></div>
+    </dl>
+  </section>
+
+  <section class="stop" id="japon" aria-labelledby="japon-titre">
+    <header>
+      <span class="codes">NRT · HND · CTS</span>
+      <h2 id="japon-titre">Japon</h2>
+      <ul class="chips">
+        <li class="warn">PVT obligatoire</li>
+        <li>8 h de plus qu'à Paris</li>
+        <li>1 an maximum</li>
+      </ul>
+    </header>
+    <div class="callout warn" role="note">
+      <strong>Les bars sont interdits en PVT</strong>
+      <p>Le ministère japonais des Affaires étrangères interdit aux titulaires du visa vacances-travail de travailler dans les bars, cabarets, boîtes de nuit et salles de jeux (loi dite <i>fūeihō</i>). La sanction, c'est l'expulsion. Au Japon, tu travailleras en restaurant, hôtel, café, auberge ou station de ski. Si un poste te paraît limite, comme un bar d'hôtel en station, demande à l'employeur et à l'ambassade avant de signer.</p>
+    </div>
+    <dl class="facts">
+      <div><dt>Le PVT</dt><dd>Nationalité française, de 18 à 30 ans (demande possible jusqu'à la veille de tes 31 ans), un seul PVT Japon dans ta vie, pas de personne à charge, et être en France au moment du dépôt.</dd></div>
+      <div><dt>Le dossier</dt><dd>Des relevés bancaires à ton nom de moins d'un mois&nbsp;: 4&nbsp;500&nbsp;€, ou 3&nbsp;100&nbsp;€ avec un billet retour. Une assurance pour tout le séjour, un CV, une lettre de motivation et un programme prévisionnel. Ces montants viennent de pvtistes.net&nbsp;: confirme-les auprès de l'ambassade.</dd></div>
+      <div><dt>Ensuite</dt><dd>Tu as 12 mois pour entrer au Japon une fois le visa délivré. Le séjour dure un an au plus, sans prolongation ni changement de statut.</dd></div>
+      <div><dt>Les stations</dt><dd>Le meilleur plan sans parler japonais. Niseko (Hokkaido) ouvre fin novembre et tient jusqu'à début mai&nbsp;; Hakuba (Nagano) est l'autre grand pôle. HTM Niseko, NISADE (Niseko, Rusutsu, Furano) et le Hakuba Hospitality Group recrutent de mi-mai à septembre, souvent avec logement subventionné et forfait de ski.</dd></div>
+      <div><dt>La paye</dt><dd>Le salaire minimum de Tokyo est de 1&nbsp;280&nbsp;¥ de l'heure depuis le 1<sup>er</sup> octobre 2026&nbsp;; les stations annoncent autour de 1&nbsp;600&nbsp;¥. Pas de pourboires au Japon&nbsp;: la paye, c'est le salaire.</dd></div>
+      <div><dt>Où chercher</dt><dd>Les pages carrières des employeurs ci-dessus, le groupe Facebook «&nbsp;Hakuba Crew&nbsp;» (plus de 10&nbsp;000 membres) et le dossier PVT Japon de pvtistes.net. Méfie-toi des agences qui promettent visa et travail&nbsp;: aucune n'est partenaire du gouvernement japonais.</dd></div>
+      <div><dt>Conduire</dt><dd>Il faut le permis international, à demander gratuitement sur le site de l'ANTS avant de partir.</dd></div>
+    </dl>
+  </section>
+
+  <section id="checklist" aria-labelledby="checklist-titre">
+    <header>
+      <h2 id="checklist-titre">Check-list</h2>
+      <p class="progress" id="check-count" aria-live="polite">0 sur 14</p>
+      <p class="hint">Tes coches restent sur ce téléphone.</p>
+    </header>
+    <div class="checklist">
+      <fieldset>
+        <legend class="label">Cette semaine</legend>
+        <label><input type="checkbox" id="c-31ans"><span>Noter la date de tes 31 ans&nbsp;: c'est la limite du PVT</span></label>
+        <label><input type="checkbox" id="c-cv"><span>CV de barmaid en français et en anglais</span></label>
+        <label><input type="checkbox" id="c-candid"><span>Dix candidatures pour la saison aux Antilles</span></label>
+        <label><input type="checkbox" id="c-passeport"><span>Passeport valide pour toute la durée du séjour au Japon</span></label>
+      </fieldset>
+      <fieldset>
+        <legend class="label">Avant les Antilles</legend>
+        <label><input type="checkbox" id="c-contrat"><span>Contrat signé, logement réglé (logée ou trouvé)</span></label>
+        <label><input type="checkbox" id="c-billet"><span>Billet aller acheté</span></label>
+        <label><input type="checkbox" id="c-vitale"><span>Carte Vitale et mutuelle à jour</span></label>
+        <label><input type="checkbox" id="c-coussin"><span>Un mois de dépenses de côté pour démarrer</span></label>
+      </fieldset>
+      <fieldset>
+        <legend class="label">Pour le PVT Japon</legend>
+        <label><input type="checkbox" id="c-fonds"><span>4&nbsp;500&nbsp;€ sur ton compte, ou 3&nbsp;100&nbsp;€ et un billet retour</span></label>
+        <label><input type="checkbox" id="c-assurance"><span>Assurance PVT pour toute la durée</span></label>
+        <label><input type="checkbox" id="c-rdv"><span>Rendez-vous à l'ambassade ou au consulat</span></label>
+        <label><input type="checkbox" id="c-dossier"><span>CV, lettre de motivation, programme prévisionnel</span></label>
+        <label><input type="checkbox" id="c-permis"><span>Permis international (ANTS)</span></label>
+        <label><input type="checkbox" id="c-stations"><span>Candidatures aux stations de ski dès la mi-mai</span></label>
+      </fieldset>
+    </div>
+  </section>
+
+  <section id="cagnotte" aria-labelledby="cagnotte-titre">
+    <header>
+      <h2 id="cagnotte-titre">Ta cagnotte PVT</h2>
+    </header>
+    <form class="cagnotte" id="cagnotte-form">
+      <div class="fields">
+        <label for="cagnotte-deja">Déjà de côté (€)
+          <input type="number" id="cagnotte-deja" inputmode="numeric" min="0" step="50" value="800">
+        </label>
+        <label for="cagnotte-mois">Mis de côté chaque mois (€)
+          <input type="number" id="cagnotte-mois" inputmode="numeric" min="0" step="50" value="400">
+        </label>
+      </div>
+      <label class="toggle" for="cagnotte-billet"><input type="checkbox" id="cagnotte-billet">J'ai déjà mon billet retour</label>
+      <p class="result" id="cagnotte-resultat" aria-live="polite"></p>
+      <p class="hint">Valeurs d'exemple&nbsp;: mets les tiennes.</p>
+    </form>
+  </section>
+
+  <section id="questions" aria-labelledby="questions-titre">
+    <header>
+      <h2 id="questions-titre">À trancher avant de partir</h2>
+    </header>
+    <ol class="questions">
+      <li>Ton âge exact par rapport à la limite du PVT.</li>
+      <li>Ton niveau d'anglais&nbsp;: Saint-Barth et les stations japonaises le demandent.</li>
+      <li>Saint-Barth, logée avec de gros pourboires, ou la Guadeloupe et la Martinique, avec plus de choix&nbsp;?</li>
+      <li>Le Japon pour y travailler une saison, ou seulement pour voyager avec tes économies&nbsp;?</li>
+      <li>Combien de temps en tout&nbsp;: un an, deux ans, plus&nbsp;?</li>
+    </ol>
+  </section>
+
+  <section id="sources" aria-labelledby="sources-titre">
+    <header><h2 id="sources-titre">Sources</h2></header>
+    <ul class="sources">
+      <li><a href="https://pvtistes.net/dossiers/les-demarches-pour-obtenir-son-pvt-japon/">pvtistes.net, tutoriel PVT Japon 2026</a></li>
+      <li><a href="https://www.mofa.go.jp/j_info/visit/w_holiday/index.html">Ministère japonais des Affaires étrangères, programme vacances-travail</a></li>
+      <li><a href="https://www.au.emb-japan.go.jp/itpr_en/visa_workingholiday_en.html">Ambassade du Japon en Australie, établissements interdits (fūeihō)</a></li>
+      <li><a href="https://www.lhotellerie-restauration.fr/emploi/tout-outre-mer">L'Hôtellerie Restauration, offres Outre-mer</a></li>
+      <li><a href="https://www.journaldespalaces.com/carriere/offre-305446-Barman-Hotel-Christopher-Saint-Barthelemy.html">Journal des Palaces, offres de barman à Saint-Barth</a></li>
+      <li><a href="https://www.htmniseko.com/careers/faq">HTM Niseko, FAQ recrutement</a></li>
+      <li><a href="https://www.hakuba.com/?p=3596">hakuba.com, travailler une saison à Hakuba</a></li>
+      <li><a href="https://wageindicator.org/ai/work/minimum-wage/updates/2026/minimum-wage-increased-in-japan-from-01-october-2026-october-03-2026/">WageIndicator, salaire minimum au Japon (octobre 2026)</a></li>
+      <li><a href="https://www.insee.fr/fr/statistiques/7648939">Insee Première n° 1958, écarts de prix entre les DOM et la métropole (2022)</a></li>
+      <li><a href="https://www.aircaraibes.com/destinations/martinique/quand-partir">Air Caraïbes, saisons en Martinique</a></li>
+    </ul>
+  </section>
+
+  <footer>Vérifié le 10 octobre 2026. Les règles du PVT et les salaires bougent&nbsp;: vérifie à la source avant de payer quoi que ce soit.</footer>
+</div>
+
+<script>
+(function () {
+  var KEY = 'grand-depart-checklist';
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.checklist input[type="checkbox"]'));
+  var count = document.getElementById('check-count');
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+
+  function updateCount() {
+    var done = boxes.filter(function (b) { return b.checked; }).length;
+    count.textContent = done + ' sur ' + boxes.length;
+  }
+  boxes.forEach(function (box) {
+    if (saved[box.id]) box.checked = true;
+    box.addEventListener('change', function () {
+      saved[box.id] = box.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+      updateCount();
+    });
+  });
+  updateCount();
+
+  var form = document.getElementById('cagnotte-form');
+  var deja = document.getElementById('cagnotte-deja');
+  var mois = document.getElementById('cagnotte-mois');
+  var billet = document.getElementById('cagnotte-billet');
+  var out = document.getElementById('cagnotte-resultat');
+  var euros = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
+
+  function calc() {
+    var cible = billet.checked ? 3100 : 4500;
+    var deJa = Math.max(0, parseFloat(deja.value) || 0);
+    var parMois = Math.max(0, parseFloat(mois.value) || 0);
+    var manque = Math.max(0, cible - deJa);
+    var texte = 'Objectif : <b>' + euros.format(cible) + ' €</b>. ';
+    if (manque === 0) {
+      texte += 'Tu y es déjà.';
+    } else if (parMois === 0) {
+      texte += 'Il te manque <b>' + euros.format(manque) + ' €</b>. Indique ce que tu peux mettre de côté chaque mois.';
+    } else {
+      var n = Math.ceil(manque / parMois);
+      texte += 'Il te manque <b>' + euros.format(manque) + ' €</b>, soit <b>' + n + ' mois</b> à ' + euros.format(parMois) + ' € par mois.';
+    }
+    out.innerHTML = texte;
+  }
+  form.addEventListener('submit', function (e) { e.preventDefault(); });
+  [deja, mois, billet].forEach(function (el) {
+    el.addEventListener('input', calc);
+    el.addEventListener('change', calc);
+  });
+  calc();
+})();
+</script>
