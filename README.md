@@ -20,9 +20,9 @@ Une seule page, `index.html`, pensée pour un téléphone :
 
 ## Voir la page
 
-Ouvrir `index.html` dans un navigateur. Le fichier n'a pas d'en-tête `<!doctype>` :
-il est écrit pour être publié en Artifact claude.ai, qui l'ajoute. Pour GitHub
-Pages, l'envelopper d'abord dans un squelette HTML complet.
+En ligne pour tout le monde : https://morlotn.github.io/grand-depart/ (GitHub
+Pages, dépôt public MorlotN/grand-depart, depuis le 17 octobre 2026). En local,
+ouvrir `index.html` dans un navigateur.
 
 ## Ce qu'on ne sait pas encore d'elle
 
